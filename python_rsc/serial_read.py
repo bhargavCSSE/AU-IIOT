@@ -9,7 +9,7 @@ import time
 
 SERIAL_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 9600
-BYTE_BUFFER_SIZE = 5
+BYTE_BUFFER_SIZE = 8
 
 ser_instance_1 = serial.Serial(
         
