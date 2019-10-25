@@ -759,7 +759,7 @@ void loop()
 #else
         Serial.print((unsigned long)tachReadoutRpm);
 #endif
-        Serial.print(F(";"));
+        Serialln.print(F(";"));
       }
     }
 #endif
