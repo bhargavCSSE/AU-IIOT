@@ -270,7 +270,7 @@
 // General Settings
 #define UART_BAUD_RATE 9600       //  Set this so it matches the BT module's BAUD rate 
 #define UPDATE_FREQUENCY 24       //  Frequency in Hz (number of timer per second the scales are read and the data is sent to the application)
-#define TACH_UPDATE_FREQUENCY 4     //  Max Frequency in Hz (number of timer per second) the tach output is sent to the application
+#define TACH_UPDATE_FREQUENCY 24     //  Max Frequency in Hz (number of timer per second) the tach output is sent to the application
 
 //---END OF CONFIGURATION PARAMETERS ---
 
