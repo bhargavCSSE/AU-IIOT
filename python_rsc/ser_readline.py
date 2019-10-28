@@ -1,6 +1,5 @@
 import serial
 import time
-import struct
 ser = serial.Serial(port='/dev/ttyUSB0',baudrate=9600,timeout=1)
 while True:
         position=ser.readline().decode('utf-8')
