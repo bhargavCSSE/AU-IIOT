@@ -12,7 +12,7 @@ while True:
                         X,Y,Z,T,_=position
                 else:
                         X,Y,Z,T,_=position[(len(position)-5):]
-                line='{0},{1},{2},{3}'.format(X,Y,Z,T)
+                line='{0},{1},{2},{3}'.format(X[1:],Y[1:],Z[1:],T[1:])
                 print(line)
         except:
                 raise
