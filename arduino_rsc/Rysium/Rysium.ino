@@ -215,7 +215,6 @@
 #define SCALE_X_ENABLED 1
 #define SCALE_Y_ENABLED 1
 #define SCALE_Z_ENABLED 1
-#define SCALE_W_ENABLED 0
 
 // I/O ports config (change pin numbers if DRO, Tach sensor or Tach LED feedback is connected to different ports)
 #define SCALE_CLK_PIN 2
@@ -223,13 +222,11 @@
 #define SCALE_X_PIN 3
 #define SCALE_Y_PIN 4
 #define SCALE_Z_PIN 5
-#define SCALE_W_PIN 6
 
 // DRO rounding On/Off (if not enabled change in the corresponding constant value from "1" to "0")
 #define SCALE_X_AVERAGE_ENABLED 1
 #define SCALE_Y_AVERAGE_ENABLED 1
 #define SCALE_Z_AVERAGE_ENABLED 1
-#define SCALE_W_AVERAGE_ENABLED 0
 
 // DRO rounding sample size.  Change it to 16 for machines with power feed
 #define AXIS_AVERAGE_COUNT 24
@@ -257,16 +254,6 @@
 #define OUTPUT_TACH_LED_PIN 13
 
 
-// Touch probe setup (if Touch Probe is not connected change in the corresponding constant value from "1" to "0")
-#define PROBE_ENABLED 0
-
-#define INPUT_PROBE_PIN 8       // Pin 8 connected to Touch Probe
-
-#define PROBE_INVERT 0          // Touch Probe signal inversion: Open = Input pin is Low; Closed = Input pin is High
-
-#define OUTPUT_PROBE_LED_PIN 12     // When Tach is not enabled you may change it to 13 in order to use on-board LED.
-
-
 // General Settings
 #define UART_BAUD_RATE 9600       //  Set this so it matches the BT module's BAUD rate 
 #define UPDATE_FREQUENCY 24       //  Frequency in Hz (number of timer per second the scales are read and the data is sent to the application)
@@ -287,13 +274,13 @@
 #define FILTER_FAST_EMA 2           // Fast movement EMA
 
 
-#if (SCALE_X_ENABLED > 0) || (SCALE_Y_ENABLED > 0) || (SCALE_Z_ENABLED > 0) || (SCALE_W_ENABLED > 0)
+#if (SCALE_X_ENABLED > 0) || (SCALE_Y_ENABLED > 0) || (SCALE_Z_ENABLED > 0)
 #define DRO_ENABLED 1
 #else
 #define DRO_ENABLED 0
 #endif
 
-#if (SCALE_X_AVERAGE_ENABLED > 0) || (SCALE_Y_AVERAGE_ENABLED > 0) || (SCALE_Z_AVERAGE_ENABLED > 0) || (SCALE_W_AVERAGE_ENABLED > 0)
+#if (SCALE_X_AVERAGE_ENABLED > 0) || (SCALE_Y_AVERAGE_ENABLED > 0) || (SCALE_Z_AVERAGE_ENABLED > 0)
 #define SCALE_AVERAGE_ENABLED 1
 #else
 #define SCALE_AVERAGE_ENABLED 0
@@ -338,16 +325,6 @@
 #define Z_PIN_BIT (SCALE_Z_PIN - 8)
 #define Z_DDR DDRB
 #define Z_INPUT_PORT PINB
-#endif
-
-#if SCALE_W_PIN < 8 
-#define W_PIN_BIT SCALE_W_PIN
-#define W_DDR DDRD
-#define W_INPUT_PORT PIND
-#else
-#define W_PIN_BIT (SCALE_W_PIN - 8)
-#define W_DDR DDRB
-#define W_INPUT_PORT PINB
 #endif
 
 // Define tach interrupt for selected pin
@@ -470,28 +447,6 @@
 #define TACH_LED_OUTPUT_PORT PORTB
 #endif
 
-// Define registers and pins for touch probe
-#if INPUT_PROBE_PIN < 8 
-#define PROBE_PIN_BIT INPUT_PROBE_PIN
-#define PROBE_DDR DDRD
-#define PROBE_INPUT_PORT PIND
-#else
-#define PROBE_PIN_BIT (INPUT_PROBE_PIN - 8)
-#define PROBE_DDR DDRB
-#define PROBE_INPUT_PORT PINB
-#endif
-
-#if OUTPUT_PROBE_LED_PIN < 8 
-#define PROBE_LED_PIN_BIT OUTPUT_PROBE_LED_PIN
-#define PROBE_LED_DDR DDRD
-#define PROBE_LED_OUTPUT_PORT PORTD
-#else
-#define PROBE_LED_PIN_BIT (OUTPUT_PROBE_LED_PIN - 8)
-#define PROBE_LED_DDR DDRB
-#define PROBE_LED_OUTPUT_PORT PORTB
-#endif
-
-
 
 // Some constants calculated here
 unsigned long const minRpmTime = (((long) MIN_RPM_DELAY) * ((long) 1000));
@@ -568,17 +523,6 @@ volatile int axisLastReadPositionZ;
 volatile long axisAMAValueZ;
 #endif
 
-#if SCALE_W_ENABLED > 0
-volatile long wValue;
-volatile long wReportedValue;
-#endif
-#if SCALE_W_AVERAGE_ENABLED > 0
-volatile long axisLastReadW[AXIS_AVERAGE_COUNT];
-volatile int axisLastReadPositionW;
-volatile long axisAMAValueW;
-#endif
-
-
 
 //The setup function is called once at startup of the sketch
 void setup()
@@ -621,14 +565,6 @@ void setup()
   initializeAxisAverage(axisLastReadZ, axisLastReadPositionZ, axisAMAValueZ);
 #endif
 #endif
-#if SCALE_W_ENABLED > 0
-  W_DDR &= ~_BV(W_PIN_BIT);
-  wValue = 0L;
-  wReportedValue = 0L;
-#if SCALE_W_AVERAGE_ENABLED > 0
-  initializeAxisAverage(axisLastReadW, axisLastReadPositionW, axisAMAValueW);
-#endif
-#endif
 
 #endif
 
@@ -665,17 +601,6 @@ void setup()
 #endif
 
 
-  //initialize touch probe values
-#if PROBE_ENABLED > 0
-  // Setup tach port for input
-  PROBE_DDR &= ~_BV(PROBE_PIN_BIT);
-  PROBE_LED_DDR |= _BV(PROBE_LED_PIN_BIT);
-  // Set LED pin to LOW
-  PROBE_LED_OUTPUT_PORT &= ~_BV(PROBE_LED_PIN_BIT);
-  // Set probe input to "not touching"
-  probeReportedValue = 0;
-
-#endif
 
   //initialize serial port
   Serial.begin(UART_BAUD_RATE);
@@ -724,15 +649,6 @@ void loop()
     Serial.print(F(";"));
 #endif
 
-#if SCALE_W_ENABLED > 0
-#if SCALE_W_AVERAGE_ENABLED > 0
-    scaleValueRounded(wReportedValue, axisLastReadW, axisLastReadPositionW, axisAMAValueW);
-#endif
-    Serial.print(F("W"));
-    Serial.print((long)wReportedValue);
-    Serial.print(F(";"));
-#endif
-
 #endif
 
 
@@ -759,21 +675,11 @@ void loop()
 #else
         Serial.print((unsigned long)tachReadoutRpm);
 #endif
-        Serialln.print(F(";"));
+        Serial.println(F(";"));
       }
     }
 #endif
 
-
-    // print Touch Probe data to serial port
-#if PROBE_ENABLED > 0
-    // Calculate tach data
-    probeReportedValue = readProbeOutputData();
-
-    Serial.print(F("P"));
-    Serial.print((unsigned int)probeReportedValue);
-    Serial.print(F(";"));
-#endif
   }
 }
 
@@ -868,13 +774,6 @@ ISR(TIMER2_COMPA_vect)
       zValue >>= 1;
 #endif
 
-#if SCALE_W_ENABLED > 0
-      if (W_INPUT_PORT & _BV(W_PIN_BIT))
-        wValue |= ((long)0x00100000 );
-      wValue >>= 1;
-#endif
-
-
     } else if (updateFrequencyCounter == SCALE_CLK_PULSES - 1) {
 
       //If 21-st bit is 'HIGH' inverse the sign of the axis readout
@@ -899,12 +798,6 @@ ISR(TIMER2_COMPA_vect)
       zValue = 0L;
 #endif
 
-#if SCALE_W_ENABLED > 0
-      if (W_INPUT_PORT & _BV(W_PIN_BIT))
-        wValue |= ((long)0xfff00000);
-      wReportedValue = wValue;
-      wValue = 0L;
-#endif
       // Tell the main loop, that it's time to sent data
       tickTimerFlag = true;
 
@@ -1200,34 +1093,6 @@ ISR(TACH_INTERRUPT_VECTOR)
   } else {
   // read tach port and output it to LED
     TACH_LED_OUTPUT_PORT &= ~_BV(TACH_LED_PIN_BIT);
-  }
-}
-#endif
-
-
-
-
-// Read touch probe status
-#if PROBE_ENABLED > 0
-inline unsigned int readProbeOutputData()
-{
-  if (PROBE_INPUT_PORT & _BV(PROBE_PIN_BIT)) {
-  // Return probe signal 
-#if PROBE_INVERT == 0
-    PROBE_LED_OUTPUT_PORT |= _BV(PROBE_LED_PIN_BIT);
-    return 1;
-#else
-    PROBE_LED_OUTPUT_PORT &= ~_BV(PROBE_LED_PIN_BIT);
-    return 0;
-#endif
-  } else {
-#if PROBE_INVERT == 0
-    PROBE_LED_OUTPUT_PORT &= ~_BV(PROBE_LED_PIN_BIT);
-    return  0;
-#else
-    PROBE_LED_OUTPUT_PORT |= _BV(PROBE_LED_PIN_BIT);
-    return 1;
-#endif
   }
 }
 #endif
