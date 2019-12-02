@@ -13,12 +13,11 @@ BAUD_RATE = 9600
 BYTE_BUFFER_SIZE = 8
 
 ser_instance_1 = serial.Serial(
-        
         port=SERIAL_PORT,
         baudrate = BAUD_RATE,
         timeout = 1
-        
         )
+
 #Exit program using  keyboard interrupt (Ctrl + C)
 df = pd.DataFrame(columns=["Date","Time","Current", "RPM"])
 index = 0
