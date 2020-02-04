@@ -64,7 +64,6 @@ def thread_ADXL345():
         global adxl
         adxl = accelerometer.acceleration
         print("%f %f %f" % accelerometer.acceleration)
-        sleep(1)
 
 def thread_ADS1x15():
     ads = ADS.ADS1115(i2c)
@@ -79,7 +78,6 @@ def thread_ADS1x15():
         global current
         current = ((chan.voltage**2)**.5)*60
         print("Peak Current: " + str(current))
-        sleep(0.1)
 
 def thread_DataFrame(): 
     print("Initializing...")
@@ -87,7 +85,7 @@ def thread_DataFrame():
     print("DataFrame in action")
     d = []
     global ppm, adxl, current
-    for i in range(100):
+    for i in range(10):
         d.append({'RPM': ppm, 'ADXL': adxl, 'Current': current})
         df = pd.DataFrame(d)
         sleep(0.1)
