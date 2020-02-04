@@ -23,6 +23,7 @@ lock = RLock()
 
 # Thread definitions
 def thread_RPM():
+    print("Initializing thread: RPM")
     t1 = currentThread()
     t1.isAlive = True
     global count
@@ -41,6 +42,7 @@ def thread_RPM():
 
 
 def thread_ADXL345():
+    print("Initializing thread: ADXL")
     t2 = currentThread()
     t2.isAlive = True
     accelerometer = adafruit_adxl34x.ADXL345(i2c)
@@ -77,7 +79,7 @@ def thread_ADS1x15():
 
 
 def thread_DataFrame(): 
-    print("Initializing...")
+    print("Initializing thread: DataFrame")
     t4 = currentThread()
     t4.isAlive = True
     print("DataFrame in action")
