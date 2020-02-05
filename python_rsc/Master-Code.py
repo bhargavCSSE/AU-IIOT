@@ -20,23 +20,26 @@ from threading import Thread, currentThread, RLock
 from adafruit_ads1x15.analog_in import AnalogIn
 
 
-def display(stdscr, pid):
-    global ppm, adxl, current
-    ppm = 0
-    adxl = 0
-    current = 0
+def display(stdscr):
+    global ppm, adxl, current, timestamp, captured_samples
     # Clear screen
     stdscr.clear()
 
-    # This raises ZeroDivisionError when i == 10.
+
     while(True):
-        stdscr.addstr(1, 0, 'RPM: {}'.format(ppm))
-        stdscr.addstr(2, 0, 'ADXL: {}'.format(adxl))
-        stdscr.addstr(3, 0, 'Current: {}'.format(current))
-        stdscr.clear()
-        if pid.isAlive == False:
-            break
-    stdscr.getkey()
+        stdscr.addstr(0, 0, "Sensor-Display (Beta testing)")
+        stdscr.addstr(1, 0, "---------------------------------------------------------")
+        stdscr.addstr(3, 0, 'RPM:')
+        stdscr.addstr(3, 10, '{}'.format(ppm))
+        stdscr.addstr(5, 0, 'ADXL:')
+        stdscr.addstr(5, 10, '{}'.format(adxl))
+        stdscr.addstr(7, 0, 'Current:')
+        stdscr.addstr(7, 10, '{}'.format(current))
+        stdscr.addstr(9, 0, '---------------------------------------------------------')
+        stdscr.addstr(11, 0, 'Time Elapsed:  {}'.format(round(timestamp,2)))
+        stdscr.addstr(12, 0, 'Captured Samples: {}'.format(captured_samples))
+        stdscr.refresh()
+
 
 # Thread definitions
 def thread_RPM():
@@ -50,78 +53,61 @@ def thread_RPM():
         sleep(0.1)
         stamp2=count
         global ppm
-        ppm = 60*(abs(stamp1 - stamp2))
-        # print("RPM: "+ str(ppm))
+        bias = 0
+        global ppm
+        ppm = 600*(abs(stamp1 - stamp2)) + bias
         
         if t1.isAlive == False:
             print("RPM closing")
             break
 
 
-def thread_ADXL345():
-    print("Initializing thread: ADXL")
+def thread_I2C():
+    print("Initializing thread: I2C")
     t2 = currentThread()
     t2.isAlive = True
     accelerometer = adafruit_adxl34x.ADXL345(i2c)
-    
-    while(loop_enable == 1):
-        global adxl
-        adxl = accelerometer.acceleration
-        # print("%f %f %f" % accelerometer.acceleration)
-        
-        if t2.isAlive == False:
-            print("ADXL closing")
-            break
-
-
-def thread_ADS1x15():
-    t3 = currentThread()
-    t3.isAlive = True
     ads = ADS.ADS1115(i2c)
     ads.gain = 4
     chan = AnalogIn(ads, ADS.P0, ADS.P1)
     
     while(loop_enable == 1):
-        # x = []
-        # for i in range(100):
-        #     x.append(((chan.voltage**2)**.5)*60)
-        #     sleep(0.01)
-        # current = max(x)
+        global adxl
+        adxl = accelerometer.acceleration
         global current
         current = ((chan.voltage**2)**.5)*60
-        # print("Peak Current: " + str(current))
-        if t3.isAlive == False:
-            print("ADS closing")
+        # print("%f %f %f" % accelerometer.acceleration)
+        
+        if t2.isAlive == False:
+            print("I2C closing")
             break
-
 
 def thread_DataFrame(): 
     print("Initializing thread: DataFrame")
     t4 = currentThread()
     t4.isAlive = True
-    print("DataFrame in action")
+    # print("DataFrame in action")
     d = []
-    global ppm, adxl, current
+    global ppm, adxl, current, timestamp, captured_samples
     ppm = 0
     adxl = 0
     current = 0
     
+    start_time = time.time()
+    captured_samples = 0
     while(True):
         date = datetime.now().strftime('%Y-%m-%d')
-        time = datetime.now().strftime('%H:%M:%S.%f')
-        d.append({'Date': date, 'Time': time, 'RPM': ppm, 'ADXL': adxl, 'Current': current})
+        Time = datetime.now().strftime('%H:%M:%S.%f')
+        timestamp = time.time() - start_time
+        d.append({'Date': date, 'Time': Time,'Timestamp': timestamp, 'RPM': ppm, 'ADXL': adxl, 'Current': current})
         df = pd.DataFrame(d)
+        captured_samples += 1
         if t4.isAlive == False:
             print("DataFrame closing")
             print(df)
+            print("\nTotal Time of data collection:"+str(timestamp))
             break
         sleep(0.1)
-
-def thread_display():
-    print("Initializing thread: Display")
-    t5 = currentThread()
-    t5.isAlive = True
-    wrapper(display, t5)
 
 if __name__ == "__main__":
     
@@ -132,6 +118,7 @@ if __name__ == "__main__":
     i2c = busio.I2C(board.SCL, board.SDA)
 
     # Kernel Setup
+    global count
     count = 0
     loop_enable = 1
     lock = RLock()
@@ -143,31 +130,31 @@ if __name__ == "__main__":
     # Interrupt definitions
     def interrupt_1(channel):
         global count
-        count = count+1
+        count = count + 1
 
     # Interrupt deployments
     GPIO.add_event_detect(11, GPIO.RISING, callback=interrupt_1)
 
     # Kernel Execution
     t1 = threading.Thread(name='RPM', target=thread_RPM, daemon=True)
-    t2 = threading.Thread(name='Accel', target=thread_ADXL345, daemon=True)
-    t3 = threading.Thread(name='ADS', target=thread_ADS1x15, daemon=True)
-    t4 = threading.Thread(name='DataFrame', target=thread_DataFrame)
-    # t5 = threading.Thread(name='Display', target=thread_display)
+    t2 = threading.Thread(name='I2C', target=thread_I2C, daemon=True)
+    t3 = threading.Thread(name='DataFrame', target=thread_DataFrame)
 
     try:
+        
         t1.start()
         t2.start()
         t3.start()
-        t4.start()
-        # t5.start()
-        while(True):
-            dummy_loop = 1
+        if(input("Turn on sensor display? Y/N: ") == 'Y'):
+            wrapper(display)
+        else:
+            while(True):
+                dummy_loop = 1
 
     except KeyboardInterrupt as e:
         t1.isAlive = False
         t2.isAlive = False
         t3.isAlive = False
-        t4.isAlive = False
-        # t5.isAlive = False
+
         sys.exit(e)
+        
