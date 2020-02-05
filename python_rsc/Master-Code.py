@@ -14,12 +14,29 @@ import adafruit_ads1x15.ads1115 as ADS
 import pandas as pd
 
 from time import sleep
+from curses import wrapper
 from datetime import datetime
 from threading import Thread, currentThread, RLock
 from adafruit_ads1x15.analog_in import AnalogIn
 
 
-lock = RLock()
+def display(stdscr, pid):
+    global ppm, adxl, current
+    ppm = 0
+    adxl = 0
+    current = 0
+    # Clear screen
+    stdscr.clear()
+
+    # This raises ZeroDivisionError when i == 10.
+    while(True):
+        stdscr.addstr(1, 0, 'RPM: {}'.format(ppm))
+        stdscr.addstr(2, 0, 'ADXL: {}'.format(adxl))
+        stdscr.addstr(3, 0, 'Current: {}'.format(current))
+        stdscr.clear()
+        if pid.isAlive == False:
+            break
+    stdscr.getkey()
 
 # Thread definitions
 def thread_RPM():
@@ -94,13 +111,17 @@ def thread_DataFrame():
         time = datetime.now().strftime('%H:%M:%S.%f')
         d.append({'Date': date, 'Time': time, 'RPM': ppm, 'ADXL': adxl, 'Current': current})
         df = pd.DataFrame(d)
-        # print(d)
         if t4.isAlive == False:
             print("DataFrame closing")
             print(df)
             break
         sleep(0.1)
 
+def thread_display():
+    print("Initializing thread: Display")
+    t5 = currentThread()
+    t5.isAlive = True
+    wrapper(display, t5)
 
 if __name__ == "__main__":
     
@@ -132,12 +153,14 @@ if __name__ == "__main__":
     t2 = threading.Thread(name='Accel', target=thread_ADXL345, daemon=True)
     t3 = threading.Thread(name='ADS', target=thread_ADS1x15, daemon=True)
     t4 = threading.Thread(name='DataFrame', target=thread_DataFrame)
+    # t5 = threading.Thread(name='Display', target=thread_display)
 
     try:
         t1.start()
         t2.start()
         t3.start()
         t4.start()
+        # t5.start()
         while(True):
             dummy_loop = 1
 
@@ -146,4 +169,5 @@ if __name__ == "__main__":
         t2.isAlive = False
         t3.isAlive = False
         t4.isAlive = False
+        # t5.isAlive = False
         sys.exit(e)
