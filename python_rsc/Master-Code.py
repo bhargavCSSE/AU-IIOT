@@ -14,6 +14,7 @@ import adafruit_ads1x15.ads1115 as ADS
 import pandas as pd
 
 from time import sleep
+from pathlib import Path
 from curses import wrapper
 from datetime import datetime
 from threading import Thread, currentThread, RLock
@@ -66,7 +67,8 @@ def thread_DataFrame():
     print("Initializing thread: DataFrame")
     t4 = currentThread()
     t4.isAlive = True
-    # print("DataFrame in action")
+
+    data_folder = Path("Data")
     d = []
     global rpm, adxl, current, timestamp, captured_samples
     rpm = 0
@@ -85,6 +87,7 @@ def thread_DataFrame():
         if t4.isAlive == False:
             print("DataFrame closing")
             print(df)
+            df.to_csv(data_folder / 'samples.csv')
             print("\nTotal Time of data collection:"+str(timestamp))
             break
 
