@@ -24,22 +24,29 @@ from adafruit_ads1x15.analog_in import AnalogIn
 def display(stdscr):
     global rpm, adxl, current, timestamp, captured_samples
     rpm = 0
+
     # Clear screen
     stdscr.clear()
 
 
     while(True):
+        stdscr.addstr(3, 10, '                                                          ')
+        stdscr.addstr(5, 10, '                                                          ')
+        stdscr.addstr(7, 10, '                                                          ')
         stdscr.addstr(0, 0, "Sensor-Display (Beta testing)")
-        stdscr.addstr(1, 0, "---------------------------------------------------------")
+        stdscr.addstr(1, 0, '-----------------------------------------------------------')
         stdscr.addstr(3, 0, 'RPM:')
         stdscr.addstr(3, 10, '{}'.format(rpm))
         stdscr.addstr(5, 0, 'ADXL:')
         stdscr.addstr(5, 10, '{}'.format(adxl))
         stdscr.addstr(7, 0, 'Current:')
         stdscr.addstr(7, 10, '{}'.format(current))
-        stdscr.addstr(9, 0, '---------------------------------------------------------')
+        stdscr.addstr(9, 0, '-----------------------------------------------------------')
         stdscr.addstr(11, 0, 'Time Elapsed:  {}'.format(round(timestamp,2)))
         stdscr.addstr(12, 0, 'Captured Samples: {}'.format(captured_samples))
+
+
+        stdscr.clrtoeol()
         stdscr.refresh()
 
 
