@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from guizero import *
 import random
 from math import sqrt, exp

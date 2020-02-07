@@ -169,7 +169,8 @@ def thread_DataFrame():
             print("DataFrame closing")
             print(df)
             filename = input("Filename? ")
-            filename = filename+'.csv'
+            if(filename == ''):
+                filename = filename+'.csv'
             df.to_csv(data_folder / filename)
             print("\nTotal Time of data collection:"+str(timestamp))
             break
