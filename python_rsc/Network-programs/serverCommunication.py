@@ -2,19 +2,22 @@ import socket
 import os
 
 SERVER_PORT = 5000
+SERVER_IP = '127.0.0.1'
 
-
-s = socket.socket()
-host = socket.gethostbyname("172.19.171.152")
-s.connect((host, SERVER_PORT))
-
-print("Server listening....")
-
-with open('received_file', 'wb') as f:
-    while True:
-        data = s.recv(1024)
-        f.write(data)
-f.close
-print('Got file')
-s.close()
-print('connection closed')
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.bind((SERVER_IP, SERVER_PORT))
+    s.listen(3)
+    print("Server listening....")
+    conn, addr = s.accept()
+    with conn:
+        print("Connected to ", addr)
+        while True:
+            data = conn.recv(1024)
+            if not data:
+                break
+            with open('received_file.txt', 'wb') as f:
+                f.write(data)
+                f.close
+                print('Got file')
+                s.close()
+                print('connection closed')

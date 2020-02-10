@@ -3,20 +3,14 @@ import os
 from pathlib import Path
 
 port = 5000
+IP = '127.0.0.1'
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(('', port))
+s.connect((IP, port))
 
-s.listen(3)
-filename = Path("file.csv")
-while(True):
-    conn, addr = s.accept()
-    data = conn.recv(1024)
-    f = open(filename, "rb")
-    l = f.read(1024)
-    print(filename)
-    while(l):
-        conn.send(l)
-        print('Sent file',repr(l))
-        l = f.read(1024)
-        f.close()
+filename = Path("file.txt")
+f = open(filename, "rb")
+l = f.read(1024)
+s.send(l)
+print('Sent file',filename)
+f.close()
 s.close()
