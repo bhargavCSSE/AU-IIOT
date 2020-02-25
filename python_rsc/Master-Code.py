@@ -97,8 +97,10 @@ def disp(stdscr):
 
     while(True):
         stdscr.addstr(3, 10, '                                                          ')
-        stdscr.addstr(5, 10, '                                                          ')
+        stdscr.addstr(6, 10, '                                                          ')
         stdscr.addstr(7, 10, '                                                          ')
+        stdscr.addstr(8, 10, '                                                          ')
+        stdscr.addstr(10, 10, '                                                          ')
         stdscr.addstr(0, 0, "Sensor-Display (Beta testing)")
         stdscr.addstr(1, 0, '-----------------------------------------------------------')
         stdscr.addstr(3, 0, 'RPM:')
@@ -260,37 +262,37 @@ if __name__ == "__main__":
             #__________For second window things__________  
 
 
-            Sug_Speed_title=Text(window,text="Suggested Speed",grid=[0,1],align="right")
-            Sug_Speed=Text(window,text="760",grid=[1,1],align="right")
-            Sug_Speed_Units=Text(window,text="RPM",grid=[2,1],align="left")
+            Sug_Speed_title=Text(window,text="Suggested Speed",grid=[0,1],align="right",size=20)
+            Sug_Speed=Text(window,text="760",grid=[1,1],align="right",size=20)
+            Sug_Speed_Units=Text(window,text="RPM",grid=[2,1],align="left",size=20)
 
-            Sug_Feed_title=Text(window,text="Suggested Feed Rate",grid=[0,2],align="right")
-            Sug_Feed=Text(window,text="7.6",grid=[1,2],align="right")
-            Sug_Speed_Units=Text(window,text="IPM",grid=[2,2],align="left")
+            Sug_Feed_title=Text(window,text="Suggested Feed Rate",grid=[0,2],align="right",size=20)
+            Sug_Feed=Text(window,text="7.6",grid=[1,2],align="right",size=20)
+            Sug_Speed_Units=Text(window,text="IPM",grid=[2,2],align="left",size=20)
 
-            Tool_Speed_Title=Text(window,text="Tool Speed",grid=[0,3],align="right")
-            Tool_Speed=Text(window," 0", grid=[1,3],align="right")
-            Tool_Speed_Unit=Text(window,"RPM",grid=[2,3],align="left")
+            Tool_Speed_Title=Text(window,text="Tool Speed",grid=[0,3],align="right",size=20)
+            Tool_Speed=Text(window," 0", grid=[1,3],align="right",size=20)
+            Tool_Speed_Unit=Text(window,"RPM",grid=[2,3],align="left",size=20)
 
-            X_Title=Text(window,text="X Magnitude",grid=[0,4],align="right")
-            X=Text(window,text=" 0", grid=[1,4],align="right")
-            X_Unit=Text(window,text="G",grid=[2,4],align="left")
+            X_Title=Text(window,text="X Magnitude",grid=[0,4],align="right",size=20)
+            X=Text(window,text=" 0", grid=[1,4],align="right",size=20)
+            X_Unit=Text(window,text="G",grid=[2,4],align="left",size=20)
 
-            Y_Title=Text(window,text="Y Magnitude",grid=[0,5],align="right")
-            Y=Text(window,text=" 0", grid=[1,5],align="right")
-            Y_Unit=Text(window,text="G",grid=[2,5],align="left")
+            Y_Title=Text(window,text="Y Magnitude",grid=[0,5],align="right",size=20)
+            Y=Text(window,text=" 0", grid=[1,5],align="right",size=20)
+            Y_Unit=Text(window,text="G",grid=[2,5],align="left",size=20)
 
-            Z_Title=Text(window,text="Z Magnitude",grid=[0,6],align="right")
-            Z=Text(window,text=" 0", grid=[1,6],align="right")
-            Z_Unit=Text(window,text="G",grid=[2,6],align="left")
+            Z_Title=Text(window,text="Z Magnitude",grid=[0,6],align="right",size=20)
+            Z=Text(window,text=" 0", grid=[1,6],align="right",size=20)
+            Z_Unit=Text(window,text="G",grid=[2,6],align="left",size=20)
 
-            Current_Title=Text(window,text="Current Draw",grid=[0,7],align="right")
-            Current=Text(window,text=" 0",grid=[1,7],align="right")
-            Current_units=Text(window,text="Amps",grid=[2,7],align="left")
+            Current_Title=Text(window,text="Current Draw",grid=[0,7],align="right",size=20)
+            Current=Text(window,text=" 0",grid=[1,7],align="right",size=20)
+            Current_units=Text(window,text="Amps",grid=[2,7],align="left",size=20)
 
-            Power_Title=Text(window,text="Power",grid=[0,8],align="right")
-            Power=Text(window,text=" 0",grid=[1,8],align="right")
-            Power_Units=Text(window,text="Watts",grid=[2,8],align="left") 
+            Power_Title=Text(window,text="Power",grid=[0,8],align="right",size=20)
+            Power=Text(window,text=" 0",grid=[1,8],align="right",size=20)
+            Power_Units=Text(window,text="Watts",grid=[2,8],align="left",size=20) 
 
             
 
