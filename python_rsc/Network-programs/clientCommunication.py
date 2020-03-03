@@ -1,3 +1,5 @@
+//Sending a file from the edge node Pis to the server
+
 import socket
 import os
 from pathlib import Path
