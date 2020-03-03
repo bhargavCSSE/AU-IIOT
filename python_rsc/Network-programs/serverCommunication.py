@@ -1,3 +1,5 @@
+//Server communication for receiving files from edge nodes
+
 import socket
 import os
 
