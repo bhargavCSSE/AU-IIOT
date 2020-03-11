@@ -55,9 +55,9 @@ def disp(stdscr):
         stdscr.addstr(10, 10, '{}'.format(current))
         stdscr.addstr(12, 0, 'Sound 1:')
         stdscr.addstr(12, 10, '{}'.format(sound))
-        stdscr.addstr(14, 0, 'Sound 2:')
-        stdscr.addstr(14, 10, '{}'.format(sound2))
-        stdscr.addstr(16, 0, '-----------------------------------------------------------')
+        stdscr.addstr(13, 0, 'Sound 2:')
+        stdscr.addstr(13, 10, '{}'.format(sound2))
+        stdscr.addstr(15, 0, '-----------------------------------------------------------')
         
         stdscr.clrtoeol()
         stdscr.refresh()
