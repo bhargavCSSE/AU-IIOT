@@ -26,32 +26,8 @@ from mfrc522 import SimpleMFRC522
 
 
 # Function Definitions
-
-def read_sensor():
-    global rpm, adxl, current
-    X1_Speed = round(rpm, 5)
-    X2_X, X2_Y, X2_Z = adxl
-    X3_Current = round(current,5)
-    return [X1_Speed, X2_X, X2_Y, X2_Z, X3_Current]
-
-def update_label():
-    reading = read_sensor()
-    Tool_Speed.value = reading[0]
-    X.value = round(reading[1], 8)
-    Y.value = round(reading[2], 8)
-    Z.value = round(reading[3], 8)
-    Current.value = round(reading[4], 8)
-    Power_Value = sqrt(pow(float(reading[2]), 2))*120
-    Power.value = round(Power_Value,5)
-    # recursive call
-    Tool_Speed.after(1000, update_label)
-
-
-
-
-
 def disp(stdscr):
-    global rpm, adxl, current, timestamp, captured_samples
+    global rpm, adxl, current, timestamp, captured_samples, sound, sound2
     rpm = 0
 
     # Clear screen
@@ -77,7 +53,11 @@ def disp(stdscr):
         stdscr.addstr(8, 10, '{}'.format(adxl[2]))
         stdscr.addstr(10, 0, 'Current:')
         stdscr.addstr(10, 10, '{}'.format(current))
-        stdscr.addstr(12, 0, '-----------------------------------------------------------')
+        stdscr.addstr(12, 0, 'Sound 1:')
+        stdscr.addstr(12, 10, '{}'.format(sound))
+        stdscr.addstr(14, 0, 'Sound 2:')
+        stdscr.addstr(14, 10, '{}'.format(sound2))
+        stdscr.addstr(16, 0, '-----------------------------------------------------------')
         
         stdscr.clrtoeol()
         stdscr.refresh()
@@ -195,17 +175,17 @@ if __name__ == "__main__":
     # Kernel Execution
     t1 = threading.Thread(name='I2C', target=thread_I2C, daemon=True)
     t2 = threading.Thread(name='DataFrame', target=thread_DataFrame)
-    t6 = threading.Thread(name='RFID', target=thread_RFID)
 
     try:
         t1.start()
-        t2.start()
-        t6.start()        
-        # wrapper(disp)
-        
+        while(True):
+            start = input("Waiting on user input (Type go): ")
+            if start == 'go':
+                break
+        t2.start()  
+        wrapper(disp)
 
     except KeyboardInterrupt as e:
         t1.isAlive = False
         t2.isAlive = False
-        t6.isAlive = False
         sys.exit(e)
